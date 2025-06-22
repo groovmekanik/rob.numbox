@@ -88,7 +88,7 @@ getAttrs()
 
 ## 📄 License
 
-MIT Attribution
+MIT
 
 ## 👨‍💻 Author
 
