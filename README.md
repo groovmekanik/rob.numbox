@@ -70,10 +70,10 @@ All JSUI object properties and attributes are documented in [`jsui-object-prop.m
 
 ## ⚠️ Current Limitations
 
-- Uses `_parameter_unitstyle` instead of custom `_parameter_units` strings
+- Uses `_parameter_unit_style` and ignores `_parameter_units` property
 - Fixed step size (0.002 fine / 0.5 normal) - `_parameter_steps` not implemented
 - Linear scaling only - `_parameter_exponent` not implemented
-- No unique ID system for remote addressing
+- No unique ID system for remote addressing - can easily be added using jsarguments
 - No automation visualization capabilities
 - No accessibility features
 - Limited to Live's LCD color scheme
