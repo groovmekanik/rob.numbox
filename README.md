@@ -1,24 +1,105 @@
-# rob.numbox
-A JSUI replacement for live.numbox to avoid the "overwrite look" of js painter files and enable additional functionality.
-This is currrently a work in progress.
+# 🎛️ rob.numbox
 
-Features:
-- live.numbox compatibility (mouse interaction, keyboard editing, double-click reset)
-- Dynamic Live theme color support, with active/inactive states
-- Text justification via jsarguments ("left", "centre"/"center", "right")
-- All unit style formatting (int, float, time, hertz, dB, percent, etc.)
-- Attribute monitoring for inspector changes
+A JSUI replacement for `live.numbox` in Max/MSP that avoids the "overwrite look" of js painter files and adds additional functionality.
 
-Usage:
-- use JSUI object
-- Send "active 0/1" messages to control output state and colours
-- Add justification arguments: @jsarguments left/centre/right
+**Status:** Work in progress
 
-TODO: Unimplemented Features
-- _parameter_units: currently uses parameter_unit_styles rather than worrying about _parameter_units
-- _parameter_steps: adjustable step size - currently uses 0.002 : 0.5 (see ondrag function)
-- _parameter_exponent: Exponential scaling for parameter mapping - currently uses linear scaling
-- Unique identifier addressing: No "---" style unique ID system for remote addressing
-- Parameter automation: No automation visualisation capabilities or setup
-- Accessibility features: No screen reader or keyboard navigation support
-- Color themes: currently matches Live's LCD color scheme and look
+## 📋 What it does
+
+**rob.numbox** replaces Max's `live.numbox` with a JSUI implementation that provides similar functionality but allows for further customization.
+
+## ✨ Features
+
+- 🖱️ **Full live.numbox compatibility** - Mouse interaction, keyboard editing, double-click reset
+- ⌨️ **Keyboard editing mode** - Type numbers directly with flashing red cursor
+- 🎨 **Dynamic Live theme support** - Automatic color adaptation with active/inactive states  
+- 📐 **Text justification** - Left, center, right alignment via jsarguments
+- 🔢 **Complete unit formatting** - int, float, time (ms), hertz (Hz), dB (with -inf at ≤-80dB), percent (%), Pan, Semitone (st), MIDI Note, Custom, Native
+- 👁️ **Focus management** - Visual focus indicators with crosshair corners
+- 🔒 **Cursor locking** - Mouse cursor locks during drag operations
+- ⚡ **Fine adjustment** - Hold shift for precise 0.02 steps vs normal 0.5 steps
+- 📏 **Size constraints** - Fixed 15px height, 25px minimum width (like live.numbox)
+- 🎯 **Real-time attribute monitoring** - Live inspector change detection
+- ⌫ **Full edit controls** - Backspace, Enter/Escape to commit/cancel edits
+- 🔄 **Global mouse tracking** - cursor locking during mouse drag
+
+## 🚀 Usage
+
+### Setup
+1. Add a **JSUI** object to your Max patch
+2. Load `jsui.numbox.js` into the JSUI object
+3. **Required for full functionality:**
+   - Set up mousestate polling system with `r ---poll`, `mousestate`, `pak 0 0 0`, and `prepend globalMouse`
+   - Connect `key` object with `prepend keyInput` for keyboard editing
+   - Connect `live.thisdevice` with `prepend active` for device state
+   - Connect `s ---poll` to JSUI's right outlet for polling trigger
+4. Configure via inspector or messages
+
+### Patch Setup Example
+```
+[r ---poll] → [mousestate] → [pak 0 0 0] → [prepend globalMouse] ↘
+                                                                    ↘
+[live.thisdevice] → [prepend active] ────────────────────────────── → [jsui jsui.numbox.js]
+                                                                    ↗                    ↓
+[key] → [prepend keyInput] ────────────────────────────────────── ↗                [s ---poll]
+```
+
+### Basic Usage
+```javascript
+// Control active state and visual feedback
+active 1    // Enable output and active colors
+active 0    // Disable output, show inactive colors
+
+// Set text justification
+@jsarguments left     // Left-aligned text
+@jsarguments centre   // Center-aligned text (default)
+@jsarguments right    // Right-aligned text
+```
+
+### 🎮 Interaction
+- **Click & drag** - Adjust value (shift for fine control)
+- **Double-click** - Reset to initial value
+- **Type numbers** - Direct keyboard entry with visual cursor (accepts 0-9, decimal point, minus sign)
+- **Enter** - Commit edit
+- **Escape** - Cancel edit
+- **Backspace** - Delete characters while editing
+
+## 📖 Documentation
+
+All JSUI object properties and attributes are documented in [`jsui-object-prop.md`](jsui-object-prop.md), generated from the `getAttrs()` function.
+
+## ⚠️ Current Limitations
+
+- Uses `_parameter_unitstyle` instead of custom `_parameter_units` strings
+- Fixed step size (0.002 fine / 0.5 normal) - `_parameter_steps` not implemented
+- Linear scaling only - `_parameter_exponent` not implemented
+- No unique ID system for remote addressing
+- No automation visualization capabilities
+- No accessibility features
+- Limited to Live's LCD color scheme
+
+## 🔧 Debugging
+
+Use the `getAttrs()` function to see all available attributes:
+```javascript
+// Send to the JSUI object:
+getAttrs()
+```
+
+## 📄 License
+
+MIT Attribution
+
+## 👨‍💻 Author
+
+Robert Koster - Fixation Studios  
+June 22, 2025
+
+---
+
+*README generated by Claude-4-Sonnet*
+
+### 📚 Additional Resources
+- [Max/MSP JSUI Documentation](https://docs.cycling74.com/max8/vignettes/jsui)
+- [Complete Attribute Reference](jsui-object-prop.md)
+- [Ableton Live Device Integration](https://docs.cycling74.com/max8/vignettes/live_integration)
