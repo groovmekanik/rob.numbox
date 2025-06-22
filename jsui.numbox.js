@@ -1,22 +1,6 @@
 /*
 JSUI Numbox - A live.numbox replica for Max/MSP
 ===============================================
-
-A JSUI replacement for live.numbox to avoid the 
-"overwrite look" of js painter files and enable additional functionality.
-
-Features:
-- live.numbox compatibility (mouse interaction, keyboard editing, double-click reset)
-- Dynamic Live theme color support, with active/inactive states
-- Text justification via jsarguments ("left", "centre"/"center", "right")
-- All unit style formatting (int, float, time, hertz, dB, percent, etc.)
-- Attribute monitoring for inspector changes
-
-Usage:
-- use JSUI object
-- Send "active 0/1" messages to control output state and colours
-- Add justification arguments: @jsarguments left/centre/right
-
 Author: Robert Koster // Fixation Studios
 Date: 22/06/2025
 */
