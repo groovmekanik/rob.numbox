@@ -6,8 +6,10 @@ Date: 22/06/2025
 */
 
 /*
-TODO: Unimplemented Features
-- _parameter_units: currently uses parameter_unit_styles rather than worrying about _parameter_units
+TODO: Unimplemented Features / things to fix
+- reset mouse position when it reaches reaches screen boundary to allow parameter value to advance further - adjustment stops when boundary hit (ondrag function)
+- up and down arrow keys to adjust value when in focus
+- _parameter_units: currently uses parameter_unit_styles rather than worrying about _parameter_units - are they needed for device to initialise properly?
 - _parameter_steps: adjustable step size - currently uses 0.002 : 0.5 (see ondrag function)
 - _parameter_exponent: Exponential scaling for parameter mapping - currently uses linear scaling
 - Unique identifier addressing: No "---" style unique ID system for remote addressing
@@ -84,6 +86,19 @@ function getAttrs() {
     post("Regular attributes found:", getattrList.length, "\n");
     post("Other properties/methods found:", otherAttrs.length, "\n");
     post("Total properties:", allProperties.length, "\n");
+}
+
+
+// update parameter type to float (no other types supported yet)
+function updateParameterType() {
+    var currentType = box.getattr("_parameter_type");
+    //post("DEBUG: Current _parameter_type:", currentType, "\n");
+    
+    // Only set to float (0) if not already set
+    if (currentType !== 0) {
+        post("Setting _parameter_type to 0 (float) - nothing else supported yet\n");
+        box.setattr("_parameter_type", 0);
+    }
 }
 
 // Update min/max values from inspector range attribute
@@ -329,13 +344,19 @@ function updateDisplay() {
     }
 }
 
-// Initialize range and initial value from inspector
-updateRange();
-updateInitialValue();
+// Initialize parameter type, range and initial value from inspector
+// NOTE: Commented out immediate initialization - now handled by initializeObject message
+// updateParameterType();
+// updateRange();
+// updateInitialValue();
 
 // Single handler for all attribute changes
 function handleAttributeChange(data) {
+    // Removed debug spam - only handle the actual changes
     switch(data.attrname) {
+        case "_parameter_type":
+            updateParameterType();
+            break;
         case "_parameter_unitstyle":
             updateDisplay();
             break;
@@ -354,6 +375,7 @@ function handleAttributeChange(data) {
 }
 
 // Set up attribute listeners for inspector changes
+var parameterTypeListener = new MaxobjListener(box, "_parameter_type", handleAttributeChange);
 var unitStyleListener = new MaxobjListener(box, "_parameter_unitstyle", handleAttributeChange);
 var rangeListener = new MaxobjListener(box, "_parameter_range", handleAttributeChange);
 var initialEnableListener = new MaxobjListener(box, "_parameter_initial_enable", handleAttributeChange);
@@ -375,6 +397,47 @@ var showCursor = true;
 var cursorTimer = new Task(toggleCursor, this);
 
 var clickedInside = false;
+
+//parameter initialization - which properties are actually addressable and remain with saving?
+function initializeObject() {
+    //post("=== JSUI PARAMETER SYSTEM TEST ===\n");
+    
+    // STEP 1: Enable parameter mode FIRST (this unlocks other parameter attributes)
+    //post("1. Setting parameter_enable to 1\n");
+    box.setattr("parameter_enable", 1);
+    
+    // STEP 2: Set parameter type (depends on parameter mode being enabled)
+    //post("2. Setting _parameter_type to 0 (float)\n");
+    box.setattr("_parameter_type", 0);
+    
+    // STEP 3: Enable initial value
+    //post("3. Setting _parameter_initial_enable to 1\n");
+    box.setattr("_parameter_initial_enable", 1);
+    
+    // STEP 4: Test the problematic attributes (invisible and mappable)
+    //post("4. Attempting to set _parameter_invisible to 0 (visible)\n");
+    box.setattr("_parameter_invisible", 0);
+    
+    //post("5. Attempting to set parameter_mappable to 1\n");
+    box.setattr("parameter_mappable", 1);
+    
+    // Report final state to see what actually worked
+    post("\n=== INITIAL PARAMETER STATE ===\n");
+    post("parameter_enable:", box.getattr("parameter_enable"), "(should be 1)\n");
+    post("_parameter_type:", box.getattr("_parameter_type"), "(should be 0 for float)\n");
+    post("_parameter_initial_enable:", box.getattr("_parameter_initial_enable"), "(should be 1)\n");
+    post("_parameter_invisible:", box.getattr("_parameter_invisible"), "(CRITICAL: should be 0 for visible)\n");
+    post("parameter_mappable:", box.getattr("parameter_mappable"), "(should be 1)\n");
+    
+    // Initialize other values
+    updateRange();
+    updateInitialValue();
+    currentValue = initialValue;
+    updateDisplay();
+    mgraphics.redraw();
+    
+    //post("=== TEST COMPLETE ===\n");
+}
 
 function msg_float(x) {
     updateRange(); // Ensure we have latest range values

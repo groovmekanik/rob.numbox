@@ -1,5 +1,66 @@
 # JSUI Object Attributes & Properties Documentation
 
+**⚠️ CRITICAL LIMITATION DISCOVERED ⚠️**
+
+## JSUI Parameter System Status - PERSISTENCE ISSUE
+
+During development of this JSUI numbox implementation, we discovered **parameter persistence limitations** with JSUI objects in Max for Live devices:
+
+### **What We Attempted:**
+- Create a JSUI-based `live.numbox` replacement
+- Enable proper parameter functionality for Max for Live devices
+- Make JSUI parameters persist when saved in Max for Live devices
+
+### **Critical Issues Found:**
+
+#### **1. Parameter Persistence Problem**
+- **Parameter attributes CAN be set successfully** during runtime
+- **All parameter settings work correctly** when applied (`_parameter_invisible: 0`, etc.)
+- **Parameter settings DO NOT PERSIST** when Max for Live device is saved and reloaded
+- **JSUI loses parameter configuration** between device sessions
+
+#### **2. Max for Live Integration Unclear**
+- **No clear documentation** on how JSUI parameter settings should persist in M4L devices
+- **Uncertain whether this is expected behavior** or a limitation
+- **No examples or references** of JSUI objects successfully persisting parameters in M4L devices
+
+#### **3. Initialization Timing Questions**
+- **Unclear when parameter initialization should occur** for proper persistence
+- **Unknown whether additional steps are required** beyond `setattr()` calls
+- **No official documentation** on JSUI parameter persistence requirements in M4L
+
+### **Current Status: PROJECT ON HOLD**
+
+**This project is currently suspended** pending clarification from Cycling '74 regarding:
+
+1. **Are JSUI parameter settings supposed to persist in Max for Live devices?**
+2. **What is the correct way to ensure JSUI parameter persistence in M4L?**
+3. **Is there a specific initialization sequence required for JSUI parameters?**
+4. **Are there additional steps needed beyond `setattr()` calls for parameter persistence?**
+
+### **What Works:**
+- ✅ Basic JSUI functionality (drawing, interaction, value handling)
+- ✅ All parameter attributes can be set successfully during runtime
+- ✅ Parameter visibility, type, range, etc. all work when applied
+- ✅ JSUI behaves as a functional control interface with parameter capabilities
+
+### **What Doesn't Work:**
+- ❌ **Parameter persistence in M4L devices** (settings lost when device saved/reloaded)
+- ❌ **Reliable Max for Live integration** (parameter state not maintained between sessions)
+- ❌ **Production readiness** (cannot be used reliably in distributed devices)
+- ❌ **Consistent parameter behavior** (works until device is saved and reopened)
+
+### **Next Steps:**
+1. **Contact Cycling '74** with specific questions about JSUI parameter system integration
+2. **Wait for official clarification** on JSUI parameter capabilities and limitations  
+3. **Resume development** once proper JSUI parameter implementation is confirmed possible
+
+---
+
+**The documentation below covers all available JSUI attributes and properties, but the parameter system functionality remains unverified for practical Max for Live device development.**
+
+---
+
 This document provides comprehensive documentation for all attributes, properties, and methods available in Max's JSUI object, formatted from console dump data and verified against official Cycling74 documentation.
 
 ## IMPORTANT CONTEXT CLARIFICATION
