@@ -25,7 +25,9 @@ mgraphics.init();
 mgraphics.relative_coords = 0;
 mgraphics.autofill = 0;
 
-var currentValue = 0;
+//currently testing initialisation in M4L - range and initial value dont seem to persist. object also cant be mapped in Live - even though property says otherwise?
+
+var currentValue = -10; //to see if initial value can persist
 var minValue = -100;  // Default fallback
 var maxValue = 100;   // Default fallback
 var initialValue = 0; // Default fallback
@@ -431,6 +433,7 @@ function initializeObject() {
     
     // Initialize other values
     updateRange();
+    box.setattr("_parameter_unitstyle", 4); //to test if unit style can persist
     updateInitialValue();
     currentValue = initialValue;
     updateDisplay();
