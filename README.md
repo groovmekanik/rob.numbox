@@ -1,96 +1,106 @@
 # 🎛️ rob.numbox
 
-**⚠️ PROJECT STATUS: ON HOLD - JSUI PARAMETER PERSISTENCE ISSUE ⚠️**
+**A JSUI-based `live.numbox` replacement for Max/MSP**
 
-A JSUI-based attempt to create a `live.numbox` replacement for Max/MSP that encountered **parameter persistence issues** when saved in Max for Live devices.
+## 🎯 Project Status: Functional*
 
-## 🚨 Critical Discovery
+**rob.numbox** implements `live.numbox` functionality using JSUI, with patcher persistence and pattr integration working correctly.
 
-During development, we discovered that while **JSUI parameter attributes can be set successfully**, they **do not persist when saved in Max for Live devices**:
-
-### **The Problem**
-- **Parameter attributes can be set** during runtime (✅ `_parameter_invisible: 0` works)
-- **Attributes appear correct** when inspected (✅ all parameter settings work)
-- **Parameters don't persist** when Max for Live device is saved and reloaded
-- **JSUI parameter state is lost** between device sessions
-
-### **Project Status: SUSPENDED**
-
-This project is **currently on hold** pending clarification from Cycling '74 regarding whether JSUI parameter settings are supposed to persist in Max for Live devices, and if so, what the correct implementation method is.
+**\*One remaining issue:** Live parameter registration (see [Known Issues](#-known-issues))
 
 ---
 
-## 📋 What We Built (Proof of Concept)
+## ✅ Working Features
 
-**rob.numbox** is a functional JSUI control that replicates `live.numbox` behavior and can set parameter attributes, but **parameter settings don't persist in Max for Live devices**.
+### Mouse Interaction
+- Mouse dragging for value adjustment with cursor locking
+- Shift+drag for fine adjustment (0.02 step vs 0.5 normal)
+- Cursor resets when reaching screen boundaries
+- Double-click reset to initial value
+- Focus management with visual indicators
 
-## ✅ Features That Work
+### Keyboard Support
+- Arrow keys for value stepping (up/down, 0.5 step size)
+- Text editing mode with number entry
+- Input validation for numeric characters only
+- Enter to commit, Escape to cancel edits
 
-- 🖱️ **Full live.numbox interaction** - Mouse dragging, keyboard editing, double-click reset
-- ⌨️ **Keyboard editing mode** - Direct number entry with visual cursor
-- 🎨 **Dynamic Live theme support** - Automatic color adaptation with active/inactive states  
-- 📐 **Text justification** - Left, center, right alignment via jsarguments
-- 🔢 **Complete unit formatting** - int, float, time (ms), hertz (Hz), dB, percent (%), etc.
-- 👁️ **Focus management** - Visual focus indicators with crosshair corners
-- 🔒 **Cursor locking** - Mouse cursor locks during drag operations
-- ⚡ **Fine adjustment** - Shift for precise control
-- 📏 **Size constraints** - Fixed 15px height like live.numbox
-- ✅ **Parameter attribute setting** - All parameter attributes can be set successfully
+### Visual Design
+- Dynamic color adaptation using Live's LCD color scheme
+- Active/inactive state visual feedback
+- Text justification (left, center, right) via jsarguments
+- Fixed 15px height matching live.numbox
 
-## ❌ What Doesn't Work (The Critical Issue)
+### Unit Support
+- **int** - Integer display
+- **float** - 2 decimal places
+- **time** - Milliseconds with "ms" suffix
+- **hertz** - Hz with "Hz" suffix  
+- **dB** - Amplitude conversion with "-inf" handling
+- **percent** - Percentage with "%" suffix
+- **semitone** - Semitones with "st" suffix
+- **MIDI note** - Note numbers
+- **Custom/Native** - Additional formatting options
 
-- **❌ Parameter persistence in M4L devices** - Settings don't save with device
-- **❌ Reliable Max for Live integration** - Parameter state lost between sessions
-- **❌ Production readiness** - Cannot be used reliably in distributed devices
+### Parameter System
+- Complete save/restore with patcher persistence
+- Parameter attribute restoration on load
+- Inspector integration for all parameter settings
+- getvalueof/setvalueof functions for pattr compatibility
+- notifyclients() calls for parameter change notifications
+- Dynamic range handling from inspector
 
-## 🔍 Technical Investigation
+## 🚀 Usage
 
-We successfully demonstrated that JSUI parameter attributes CAN be set:
-- `parameter_enable: 1` ✅ (works and can be set)
-- `_parameter_type: 0` (float) ✅ (works and can be set)  
-- `_parameter_range: [min, max]` ✅ (works and can be set)
-- `_parameter_invisible: 0` ✅ (works and can be set)
-- `_parameter_initial_enable: 1` ✅ (works and can be set)
-
-### **The Core Issue**
-**Parameter settings don't persist when the Max for Live device is saved and reloaded.** The JSUI object appears to lose its parameter configuration between sessions.
-
-## 📖 Documentation Generated
-
-This project generated comprehensive documentation:
-
-- **[`jsui-object-prop.md`](jsui-object-prop.md)** - Complete JSUI attribute reference with 70+ properties documented
-- **Parameter system investigation** - Detailed analysis of what can be set vs. what persists
-
-## 🔧 For Cycling '74
-
-**Questions that need official answers:**
-
-1. **Are JSUI parameter settings supposed to persist in Max for Live devices?**
-2. **What is the correct way to ensure JSUI parameter persistence in M4L?**
-3. **Is there a specific initialization sequence required for JSUI parameters?**
-4. **Are there additional steps needed beyond `setattr()` calls for parameter persistence?**
-
-## 🚀 Usage (As Proof of Concept)
-
-### Setup
+### Basic Setup
 1. Add a **JSUI** object to your Max patch
-2. Load `jsui.numbox.js` into the JSUI object  
-3. Call `initializeObject()` to set parameter attributes
-4. **For full functionality, connect:**
-   - `mousestate` system for cursor locking
-   - `key` object for keyboard input
-   - `live.thisdevice` for active state and initialization trigger
+2. Load `jsui.numbox.js` into the JSUI object
+3. **Optional:** Add jsarguments for text justification: `left`, `centre`, or `right`
 
-### **⚠️ Important Limitation**
-While this object functions correctly and can set parameter attributes, **parameter settings don't persist when saved in Max for Live devices**, making it unreliable for production use.
+### Full Functionality
+Connect these objects for complete feature set:
 
-## 📄 Next Steps
+```
+[mousestate] -> [globalMouse $1 $2 $3] -> [jsui]
+[key] -> [keyInput $1] -> [jsui]
+[live.thisdevice] -> [active $1] -> [jsui]
+```
 
-1. **Contact Cycling '74** with specific questions about JSUI parameter persistence in M4L
-2. **Wait for official clarification** on proper JSUI parameter persistence methods
-3. **Resume development** if/when reliable JSUI parameter persistence is confirmed possible
-4. **Consider alternative approaches** if JSUI parameter persistence is fundamentally limited
+### Inspector Configuration
+- **Range** - Set min/max values
+- **Initial Value** - Enable and set reset value
+- **Unit Style** - Choose display format
+- **Parameter Name** - For pattr integration
+
+## ❌ Known Issues
+
+### Live Parameter Registration
+Despite implementing all documented parameter functions, one issue remains:
+
+- Parameter doesn't appear in Live's automation lane
+- Cannot be MIDI mapped in Live
+- Live shows "Parameter index received from Max is out of range" error
+
+The object works correctly for pattr and general Max use, but Live's parameter system doesn't recognize it as a valid parameter. All parameter functions (`getvalueof`, `setvalueof`, `notifyclients`) are implemented correctly.
+
+## 🔍 Tested Scenarios
+
+### ✅ Working
+- Max patches with full functionality
+- Patcher persistence (saves/restores all state)
+- Inspector integration
+- User interaction (mouse, keyboard, focus)
+- Visual theming and states
+
+### ❓ Untested
+- Live parameter registration fix
+- Max for Live device distribution
+- Live automation recording
+
+## 📚 Documentation
+
+- Code comments with status tracking
+- JSUI attribute reference: [`jsui-object-prop.md`](jsui-object-prop.md)
 
 ## 📄 License
 
@@ -99,13 +109,4 @@ MIT
 ## 👨‍💻 Author
 
 Robert Koster - Fixation Studios  
-June 22, 2025
-
----
-
-**This project serves as documentation of JSUI parameter persistence limitations in Max for Live devices and a request for clarification from Cycling '74 on proper JSUI parameter persistence methods.**
-
-### 📚 Resources
-- [Complete JSUI Attribute Documentation](jsui-object-prop.md)  
-- [Max/MSP JSUI Documentation](https://docs.cycling74.com/max8/vignettes/jsui)
-- [Parameter System Investigation Results](jsui-object-prop.md#jsui-parameter-system-status---unverifiedproblematic)
+June 30, 2025

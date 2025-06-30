@@ -1,107 +1,45 @@
-# JSUI Object Attributes & Properties Documentation
+# JSUI Object Attributes & Properties Reference
 
-**⚠️ CRITICAL LIMITATION DISCOVERED ⚠️**
+## Status Summary
 
-## JSUI Parameter System Status - PERSISTENCE ISSUE
+- **Parameter persistence**: ✅ Solved using `save()` function with `embedmessage()` and timed restoration
+- **Parameter attribute access**: ✅ All attributes readable/writable with `box.getattr()`/`box.setattr()`
+- **Live parameter registration**: ❌ Objects don't appear in Live automation lanes (requires Cycling74 investigation)
 
-During development of this JSUI numbox implementation, we discovered **parameter persistence limitations** with JSUI objects in Max for Live devices:
+## ⚠️ Important Notes from Cycling74 staff on Discord
 
-### **What We Attempted:**
-- Create a JSUI-based `live.numbox` replacement
-- Enable proper parameter functionality for Max for Live devices
-- Make JSUI parameters persist when saved in Max for Live devices
-
-### **Critical Issues Found:**
-
-#### **1. Parameter Persistence Problem**
-- **Parameter attributes CAN be set successfully** during runtime
-- **All parameter settings work correctly** when applied (`_parameter_invisible: 0`, etc.)
-- **Parameter settings DO NOT PERSIST** when Max for Live device is saved and reloaded
-- **JSUI loses parameter configuration** between device sessions
-
-#### **2. Max for Live Integration Unclear**
-- **No clear documentation** on how JSUI parameter settings should persist in M4L devices
-- **Uncertain whether this is expected behavior** or a limitation
-- **No examples or references** of JSUI objects successfully persisting parameters in M4L devices
-
-#### **3. Initialization Timing Questions**
-- **Unclear when parameter initialization should occur** for proper persistence
-- **Unknown whether additional steps are required** beyond `setattr()` calls
-- **No official documentation** on JSUI parameter persistence requirements in M4L
-
-### **Current Status: PROJECT ON HOLD**
-
-**This project is currently suspended** pending clarification from Cycling '74 regarding:
-
-1. **Are JSUI parameter settings supposed to persist in Max for Live devices?**
-2. **What is the correct way to ensure JSUI parameter persistence in M4L?**
-3. **Is there a specific initialization sequence required for JSUI parameters?**
-4. **Are there additional steps needed beyond `setattr()` calls for parameter persistence?**
-
-### **What Works:**
-- ✅ Basic JSUI functionality (drawing, interaction, value handling)
-- ✅ All parameter attributes can be set successfully during runtime
-- ✅ Parameter visibility, type, range, etc. all work when applied
-- ✅ JSUI behaves as a functional control interface with parameter capabilities
-
-### **What Doesn't Work:**
-- ❌ **Parameter persistence in M4L devices** (settings lost when device saved/reloaded)
-- ❌ **Reliable Max for Live integration** (parameter state not maintained between sessions)
-- ❌ **Production readiness** (cannot be used reliably in distributed devices)
-- ❌ **Consistent parameter behavior** (works until device is saved and reopened)
-
-### **Next Steps:**
-1. **Contact Cycling '74** with specific questions about JSUI parameter system integration
-2. **Wait for official clarification** on JSUI parameter capabilities and limitations  
-3. **Resume development** once proper JSUI parameter implementation is confirmed possible
+- **M4L Runtime Changes**: Inside Max for Live, you **should not change parameter attributes at runtime** (changes may be ignored, have unexpected results, or crash)
+- **Two Separate Systems**: `parameter_mappable` controls Max's mapping, `_parameter_invisible` controls Live's parameter visibility
 
 ---
 
-**The documentation below covers all available JSUI attributes and properties, but the parameter system functionality remains unverified for practical Max for Live device development.**
+## Usage Context
 
----
-
-This document provides comprehensive documentation for all attributes, properties, and methods available in Max's JSUI object, formatted from console dump data and verified against official Cycling74 documentation.
-
-## IMPORTANT CONTEXT CLARIFICATION
-
-**Critical Distinction**: This documentation covers JSUI object attributes that can be accessed from **within** JSUI JavaScript code using the `box` object reference, NOT the `this` object. 
-
-### Correct Usage Patterns:
 - **Inside JSUI code**: `box.getattr("varname")` and `box.setattr("varname", "new_name")`
-- **External patcher scripts**: `this.patcher.getnamed("jsui_name").getattr("varname")`
-- **From Max messages**: Send messages directly to the JSUI object
+- **External scripts**: `this.patcher.getnamed("jsui_name").getattr("varname")`
+- **Max messages**: Send messages directly to the JSUI object
 
-### Verification Status Legend:
-- ✅ **Verified**: Confirmed against official Cycling74 documentation
-- 🔍 **TBTC**: To Be Tested and Confirmed - needs verification
-- ⚠️ **Context-Dependent**: Behavior may vary based on usage context
-
----
-
-## How to Use This Documentation
-
-Each property includes:
-- **Description**: What the property does
-- **Usage**: How and when to use it
-- **Example**: Code example showing get/set operations (corrected for JSUI context)
-- **Type/Range**: Expected values or data types
-- **Status**: Verification level
+**Status Legend:**
+- ✅ **Confirmed** - Verified working
+- 🔍 **TBTC** - To Be Tested and Confirmed
+- ⚠️ **Context-Dependent** - Behavior varies
 
 ---
+
+
 
 ## PARAMETER ATTRIBUTES
 
 These attributes control how the JSUI object behaves as a parameter in Live devices, automation, and modulation contexts.
 
-### `_parameter_modmode` ✅
+### `_parameter_modmode` 🔍 **TBTC**
 - **Value**: `0`
 - **Description**: Controls the modulation mode for the parameter
 - **Usage**: Sets how external modulation sources affect this parameter
-- **Example**: `box.setattr("_parameter_modmode", 1);` (from within JSUI)
+- **Example**: `box.setattr("_parameter_modmode", 1);`
 - **Range**: 0 (none), 1 (bipolar), 2 (unipolar)
 
-### `_parameter_longname` ✅
+### `_parameter_longname` 🔍 **TBTC**
 - **Value**: `"jsui"`
 - **Description**: The full display name for the parameter in Live's device view
 - **Usage**: Set a descriptive name that appears in automation lanes and device interfaces
@@ -109,21 +47,21 @@ These attributes control how the JSUI object behaves as a parameter in Live devi
 
 ### `_parameter_invisible` ✅
 - **Value**: `1`
-- **Description**: Controls whether the parameter appears in Live's parameter list
+- **Description**: Controls whether the parameter appears in Live's parameter list and automation lanes
 - **Usage**: Set to 0 to make parameter visible in Live automation
-- **Example**: `box.setattr("_parameter_invisible", 0);`
-- **Range**: 0 (visible), 1 (hidden)
+- **Example**: `box.setattr("_parameter_invisible", 0);` - used in implementation
+- **Range**: 0 (visible in Live), 1 (hidden from Live)
 
-### `_parameter_shortname` ✅
+### `_parameter_shortname` 🔍 **TBTC**
 - **Value**: `"jsui"`
 - **Description**: Abbreviated name used in contexts with limited space
 - **Usage**: Provide a short version of the parameter name for compact displays
 - **Example**: `box.setattr("_parameter_shortname", "Vol");`
 
-### `_parameter_speedlim` ✅
+### `_parameter_speedlim` 🔍 **TBTC**
 - **Value**: `1.00`
 - **Description**: Rate limiting for parameter changes to prevent zipper noise in audio processing
-- **Usage**: Control how fast parameter values can change, critical for real-time audio smoothness
+- **Usage**: Control how fast parameter values can change
 - **Example**: `box.setattr("_parameter_speedlim", 0.5);`
 - **Range**: 0.0-1.0 (0 = no limiting, 1 = maximum smoothing)
 
@@ -134,7 +72,7 @@ These attributes control how the JSUI object behaves as a parameter in Live devi
 - **Example**: `box.setattr("_parameter_modrange", [0., 100.]);`
 - **Note**: Array format needs verification for JSUI context
 
-### `_parameter_osc_enabled` ✅
+### `_parameter_osc_enabled` 🔍 **TBTC**
 - **Value**: `0`
 - **Description**: Enables Open Sound Control (OSC) communication for this parameter
 - **Usage**: Allow remote control via OSC protocol
@@ -152,13 +90,13 @@ These attributes control how the JSUI object behaves as a parameter in Live devi
 - **Value**: `1`
 - **Description**: Whether the parameter uses its initial value on device load
 - **Usage**: Control startup behavior of parameter values
-- **Example**: `box.setattr("_parameter_initial_enable", 1);`
+- **Example**: `box.setattr("_parameter_initial_enable", 1);` - used in implementation
 - **Range**: 0 (use current), 1 (use initial)
 
-### `_parameter_defer` ✅
+### `_parameter_defer` 🔍 **TBTC**
 - **Value**: `0`
 - **Description**: Defers parameter updates to avoid threading issues
-- **Usage**: Enable for parameters that might cause timing problems in real-time processing
+- **Usage**: Enable for parameters that might cause timing problems
 - **Example**: `box.setattr("_parameter_defer", 1);`
 - **Range**: 0 (immediate), 1 (deferred)
 
@@ -166,10 +104,10 @@ These attributes control how the JSUI object behaves as a parameter in Live devi
 - **Value**: `4`
 - **Description**: Display format for parameter values in Live's interface
 - **Usage**: Control how parameter values are shown (%, dB, Hz, etc.)
-- **Example**: `box.setattr("_parameter_unitstyle", 2);`
+- **Example**: `box.setattr("_parameter_unitstyle", 2);` - used in implementation
 - **Common Values**: 0 (int), 1 (float), 2 (time), 3 (hertz), 4 (decibels), 5 (percent), 6 (Pan), 7 (Semitone), 8 (MIDI Note), 9 (Custom) 10 (Native - Type)
 
-### `_parameter_osc_name` ✅
+### `_parameter_osc_name` 🔍 **TBTC**
 - **Value**: `"<default>"`
 - **Description**: Custom OSC address name for remote control
 - **Usage**: Define specific OSC path for this parameter
@@ -179,25 +117,25 @@ These attributes control how the JSUI object behaves as a parameter in Live devi
 - **Value**: `0`
 - **Description**: Parameter data type (float, int, enum, etc.)
 - **Usage**: Define what kind of values this parameter accepts
-- **Example**: `box.setattr("_parameter_type", 1);`
+- **Example**: `box.setattr("_parameter_type", 1);` - used in implementation
 - **Range**: 0 (float), 1 (int), 2 (enum), 3 (blob)
 
-### `_parameter_order` ✅
+### `_parameter_order` 🔍 **TBTC**
 - **Value**: `0`
 - **Description**: Display order in Live's parameter list
 - **Usage**: Control the sequence parameters appear in device interfaces
 - **Example**: `box.setattr("_parameter_order", 1);`
 
-### `_parameter_units` **TBTC**
+### `_parameter_units` 🔍 **TBTC**
 - **Value**: `""`
 - **Description**: Custom unit string displayed after parameter values
 - **Usage**: Add units like "Hz", "ms", "dB" to parameter displays
 - **Example**: `box.setattr("_parameter_units", "Hz");`
 
-### `_parameter_exponent` ✅
+### `_parameter_exponent` 🔍 **TBTC**
 - **Value**: `1.00`
 - **Description**: Curve exponent for non-linear parameter scaling
-- **Usage**: Create logarithmic or exponential parameter curves for more musical control
+- **Usage**: Create logarithmic or exponential parameter curves
 - **Example**: `box.setattr("_parameter_exponent", 2.0);`
 - **Range**: 0.01-100.0 (1.0 = linear, >1 = exponential, <1 = logarithmic)
 
@@ -212,13 +150,13 @@ These attributes control how the JSUI object behaves as a parameter in Live devi
 - **Value**: `0.00`
 - **Description**: The initial parameter value used when parameter is reset
 - **Usage**: Set the default value when parameter is reset or device loads
-- **Example**: `box.setattr("_parameter_initial", 0.5);`
+- **Example**: `box.setattr("_parameter_initial", 0.5);` - used in implementation
 
 ### `_parameter_range` ✅
 - **Value**: `0.00 127.00`
 - **Description**: Minimum and maximum values for the parameter
 - **Usage**: Define the operational range of the parameter
-- **Example**: `box.setattr("_parameter_range", [0., 1.]);`
+- **Example**: `box.setattr("_parameter_range", [0., 1.]);` - used in implementation
 
 ### `_parameter_linknames` 🔍 **TBTC**
 - **Value**: `0`
@@ -227,7 +165,7 @@ These attributes control how the JSUI object behaves as a parameter in Live devi
 - **Example**: `box.setattr("_parameter_linknames", 1);`
 - **Range**: 0 (independent), 1 (linked)
 
-### `_parameter_steps` ✅
+### `_parameter_steps` 🔍 **TBTC**
 - **Value**: `0`
 - **Description**: Number of discrete steps for quantized parameters
 - **Usage**: Create stepped parameters (like preset selectors)
@@ -240,66 +178,66 @@ These attributes control how the JSUI object behaves as a parameter in Live devi
 
 These attributes control the basic appearance, behavior, and functionality of the JSUI object.
 
-### `annotation` ✅
+### `annotation` 🔍 **TBTC**
 - **Value**: `""`
 - **Description**: Tooltip text that appears when hovering over the object
 - **Usage**: Provide helpful information about the object's function
 - **Example**: `box.setattr("annotation", "Controls master volume level");`
 
-### `background` ✅
+### `background` 🔍 **TBTC**
 - **Value**: `0`
 - **Description**: Controls whether the object draws a background
 - **Usage**: Set visual appearance of the JSUI object
 - **Example**: `box.setattr("background", 1);`
 - **Range**: 0 (transparent), 1 (opaque background)
 
-### `border` ✅
+### `border` 🔍 **TBTC**
 - **Value**: `1`
 - **Description**: Controls whether a border is drawn around the object
 - **Usage**: Define visual boundaries of the JSUI object
 - **Example**: `box.setattr("border", 0);`
 - **Range**: 0 (no border), 1 (show border)
 
-### `filename` ✅
+### `filename` 🔍 **TBTC**
 - **Value**: `"numbox.js"`
 - **Description**: The JavaScript file that defines the object's behavior
 - **Usage**: Load different JS files to change functionality
 - **Example**: `box.setattr("filename", "custom_control.js");`
 
-### `hidden` ✅
+### `hidden` 🔍 **TBTC**
 - **Value**: `0`
 - **Description**: Controls object visibility in the patcher
 - **Usage**: Hide objects that shouldn't be visible to users
 - **Example**: `box.setattr("hidden", 1);`
 - **Range**: 0 (visible), 1 (hidden)
 
-### `hint` ✅
+### `hint` 🔍 **TBTC**
 - **Value**: `""`
 - **Description**: Help text shown in Max's help bar when object is selected
 - **Usage**: Provide contextual help information
 - **Example**: `box.setattr("hint", "Drag to adjust volume");`
 
-### `ignoreclick` ✅
+### `ignoreclick` 🔍 **TBTC**
 - **Value**: `0`
 - **Description**: Controls whether mouse clicks are processed
 - **Usage**: Disable interaction for display-only objects
 - **Example**: `box.setattr("ignoreclick", 1);`
 - **Range**: 0 (responds to clicks), 1 (ignores clicks)
 
-### `jsarguments` 🔍 **TBTC**
-- **Value**: `jsobject -1407374883553280` (null/unset)
-- **Description**: JavaScript object containing arguments passed to the JS file
+### `jsarguments` ✅
+- **Value**: Arguments passed to JSUI object
+- **Description**: Arguments passed to the JavaScript file, accessible as array-like object
 - **Usage**: Pass initialization parameters to your JavaScript code
-- **Example**: `box.setattr("jsarguments", [440, "sine"]);`
-- **Note**: Large negative number indicates null/unset value - may require special handling for JavaScript arrays
+- **Example**: `box.getattr("jsarguments")` - used in implementation for text justification ("left", "centre", "right")
+- **Note**: Can be string or array-like object, requires type checking in code
 
-### `jspainterfile` ✅
+### `jspainterfile` 🔍 **TBTC**
 - **Value**: `""`
 - **Description**: External JavaScript file for custom painting/rendering
 - **Usage**: Separate rendering logic from interaction logic using JS Painter API
 - **Example**: `box.setattr("jspainterfile", "custom_painter.js");`
 
-### `nofsaa` ✅
+### `nofsaa` 🔍 **TBTC**
 - **Value**: `0`
 - **Description**: Disables full-scene anti-aliasing for the object
 - **Usage**: Improve performance by disabling anti-aliasing
@@ -313,78 +251,79 @@ These attributes control the basic appearance, behavior, and functionality of th
 - **Example**: `box.setattr("param_connect", "device_parameter[1]");`
 - **Note**: Parameter connection syntax needs verification
 
-### `parameter_enable` ✅
+### `parameter_enable` 🔍 **TBTC**
 - **Value**: `1`
-- **Description**: Enables the object to act as a Live parameter
-- **Usage**: Allow automation and remote control in Live
+- **Description**: Enables the object to act as a parameter in Max/Live
+- **Usage**: Allow automation and remote control
 - **Example**: `box.setattr("parameter_enable", 0);`
 - **Range**: 0 (not a parameter), 1 (parameter enabled)
 
-### `parameter_mappable` ✅
+### `parameter_mappable` 🔍 **TBTC**
 - **Value**: `1`
-- **Description**: Allows the parameter to be MIDI/key mapped
-- **Usage**: Enable user assignment of MIDI controllers
+- **Description**: Controls visibility to Max's mapping system (separate from Live's parameter system)
+- **Usage**: Enable assignment in Max's mapping interface
 - **Example**: `box.setattr("parameter_mappable", 0);`
-- **Range**: 0 (not mappable), 1 (mappable)
+- **Range**: 0 (not mappable in Max), 1 (mappable in Max)
 
-### `patching_position` ✅
+### `patching_position` 🔍 **TBTC**
 - **Value**: `634.00 405.00`
 - **Description**: X and Y coordinates in the patcher window
 - **Usage**: Programmatically position objects in patchers
 - **Example**: `box.setattr("patching_position", [100, 200]);`
 
-### `patching_rect` ✅
+### `patching_rect` 🔍 **TBTC**
 - **Value**: `634.00 405.00 69.00 22.00`
 - **Description**: Complete rectangle definition (x, y, width, height)
 - **Usage**: Set both position and size simultaneously
 - **Example**: `box.setattr("patching_rect", [0, 0, 100, 50]);`
+- **Note**: Referenced in code but commented out, not actually used
 
-### `patching_size` ✅
+### `patching_size` 🔍 **TBTC**
 - **Value**: `69.00 22.00`
 - **Description**: Width and height of the object in patcher view
 - **Usage**: Resize objects programmatically
 - **Example**: `box.setattr("patching_size", [150, 30]);`
 
-### `presentation` ✅
+### `presentation` 🔍 **TBTC**
 - **Value**: `0`
 - **Description**: Controls whether object appears in presentation mode
 - **Usage**: Show/hide objects in performance interfaces
 - **Example**: `box.setattr("presentation", 1);`
 - **Range**: 0 (not in presentation), 1 (visible in presentation)
 
-### `presentation_position` ✅
+### `presentation_position` 🔍 **TBTC**
 - **Value**: `0.00 0.00`
 - **Description**: X and Y coordinates in presentation mode
 - **Usage**: Position objects differently in performance view
 - **Example**: `box.setattr("presentation_position", [50, 100]);`
 
-### `presentation_rect` ✅
+### `presentation_rect` 🔍 **TBTC**
 - **Value**: `634.00 405.00 69.00 22.00`
 - **Description**: Complete rectangle for presentation mode
 - **Usage**: Define different size/position for presentation view
 - **Example**: `box.setattr("presentation_rect", [10, 10, 80, 25]);`
 
-### `presentation_size` ✅
+### `presentation_size` 🔍 **TBTC**
 - **Value**: `0.00 0.00`
 - **Description**: Width and height in presentation mode
 - **Usage**: Different sizing for performance interfaces
 - **Example**: `box.setattr("presentation_size", [120, 40]);`
 
-### `valuepopup` ✅
+### `valuepopup` 🔍 **TBTC**
 - **Value**: `0`
 - **Description**: Shows parameter value in a popup when adjusting
 - **Usage**: Provide visual feedback during parameter changes
 - **Example**: `box.setattr("valuepopup", 1);`
 - **Range**: 0 (no popup), 1 (show value popup)
 
-### `valuepopuplabel` ✅
+### `valuepopuplabel` 🔍 **TBTC**
 - **Value**: `0`
 - **Description**: Shows parameter name along with value in popup
 - **Usage**: Include parameter identification in value popups
 - **Example**: `box.setattr("valuepopuplabel", 1);`
 - **Range**: 0 (value only), 1 (name and value)
 
-### `varname` ✅
+### `varname` 🔍 **TBTC**
 - **Value**: `"jsui"`
 - **Description**: Script name for programmatic access to the object
 - **Usage**: Reference this object from other scripts or patchers
@@ -560,37 +499,13 @@ These are methods and properties available for scripting and advanced object man
 
 **Note**: Original console dump shows 66 total properties, but documentation includes 4 additional verified methods from official sources.
 
-## Verified Usage Patterns (Corrected)
+## Key Usage Notes
 
-### Making a Parameter Visible in Live (Within JSUI Code)
-```javascript
-box.setattr("_parameter_invisible", 0);
-box.setattr("_parameter_longname", "My Control");
-box.setattr("parameter_enable", 1);
-```
-
-### Setting Up Custom Units and Range (Within JSUI Code)
-```javascript
-box.setattr("_parameter_range", [20., 20000.]);
-box.setattr("_parameter_units", "Hz");
-box.setattr("_parameter_exponent", 3.0); // Logarithmic scaling
-```
-
-### Configuring for Presentation Mode (Within JSUI Code)
-```javascript
-box.setattr("presentation", 1);
-box.setattr("presentation_rect", [10, 10, 120, 40]);
-box.setattr("background", 1);
-box.setattr("border", 1);
-```
-
-### External Control (From Other Max Objects)
-```javascript
-// From js object or patcher script
-var jsui_obj = this.patcher.getnamed("my_jsui");
-jsui_obj.setattr("varname", "new_name");
-jsui_obj.message("bang");
-```
+- **Parameter persistence**: Use `save()` function with `embedmessage()` calls and timed restoration via `Task.schedule()`
+- **Reading attributes**: `box.getattr("_parameter_range")` returns arrays, check length before accessing
+- **pattr integration**: Implement `getvalueof()`, `setvalueof()`, and call `notifyclients()` on value changes
+- **Attribute monitoring**: Use `MaxobjListener` to respond to inspector changes
+- **⚠️ M4L Limitation**: Parameter attributes cannot be changed at runtime in Max for Live devices
 
 ## References
 - [Cycling74 Max JS API Documentation](https://docs.cycling74.com/apiref/js/)
